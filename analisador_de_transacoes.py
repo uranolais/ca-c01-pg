@@ -123,19 +123,51 @@ def gerar_parecer(transacao):
     except Exception as e:
         print(f"Ocorreu um erro inesperado: {e}")
 
+def gerar_recomendacao(parecer):
+    prompt_do_sistema = f"""
+    Para a seguinte transação, forneça uma recomendação apropriada baseada no status e nos detalhes da transação da Transação: {parecer}
+
+    As recomendações podem ser "Notificar Cliente", "Acionar setor Anti-Fraude" ou "Realizar Verificação Manual".
+    Elas devem ser escritas no formato técnico.
+
+    Inclua também uma classificação do tipo de fraude, se aplicável. 
+    """
+    print('3 - Gerando recomendação para parecer de transação')
+    try:
+        mensagem = cliente.messages.create(
+            model=modelo,
+            max_tokens=4000,
+            temperature=0,
+            # system=prompt_do_sistema,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt_do_sistema
+                        }
+                    ]
+                }
+            ]
+        )
+        resposta = mensagem.content[0].text
+        print('3 - Finalizando geração de recomendação para parecer da transação')
+        return resposta
+    except anthropic.APIConnectionError as e:
+        print("O servidor não pode ser acessado! Erro:", e.__cause__)
+    except anthropic.RateLimitError as e:
+        print("Um status code 429 foi recebido! Limite de acesso atingido.")
+    except anthropic.APIStatusError as e:
+        print(f"Um erro {e.status_code} foi recebido. Mais informações: {e.response}")
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}")
+
 transacoes = carrega("transacoes.csv")
 transacoes_analisadas = analisar_transacoes(transacoes)
 
 for transacao in transacoes_analisadas["transacoes"]:
     if transacao["status"] == "Possível Fraude":
         parecer = gerar_parecer(transacao)
-        print(parecer)
-
-    # for uma_transacao in transacoes_analisadas["transacoes"]: 
-    # if uma_transacao["status"] == "Possível Fraude": 
-    #     um_parecer = gerar_parecer(uma_transacao)
-    #     recomendacao = gerar_recomendacoes(um_parecer)
-    #     id_transacao = uma_transacao["id"]
-    #     produto_transacao = uma_transacao["nome_produto"]
-    #     status_transacao = uma_transacao["status"]
-    #     salva(f"transacao-{id_transacao}-{produto_transacao}-{status_transacao}.txt",recomendacao)
+        recomendacao = gerar_recomendacao(parecer)
+        salva(f'transacao-{transacao['id']}-{transacao['nome_produto']}-{transacao['status']}.txt',recomendacao)

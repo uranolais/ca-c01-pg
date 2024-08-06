@@ -1,0 +1,13 @@
+Recomendação: Acionar setor Anti-Fraude
+
+Justificativa: Devido ao status de "Possível Fraude" e ao alto valor da transação para um único produto eletrônico, recomenda-se acionar imediatamente o setor Anti-Fraude para uma investigação mais aprofundada.
+
+Ações sugeridas:
+1. Suspender temporariamente a transação.
+2. Iniciar protocolo de verificação detalhada pelo setor Anti-Fraude.
+3. Realizar análise do histórico de compras do cliente.
+4. Verificar padrões de localização e comportamento de compra.
+
+Classificação do tipo de fraude potencial: Fraude de Cartão Não Presente (CNP)
+
+Observação: Esta classificação é baseada no contexto de uma compra de alto valor em eletrônicos, que é um cenário comum em fraudes de cartão não presente, onde o fraudador utiliza dados de cartão roubados ou clonados para realizar compras online ou por telefone.
