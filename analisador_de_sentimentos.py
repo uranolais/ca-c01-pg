@@ -57,4 +57,7 @@ def analisador_de_sentimentos(restaurante):
     except Exception as e:
         print(f"Ocorreu um erro inesperado: {e}")
 
-analisador_de_sentimentos(restaurante="Restaurante de Bolos e Doces")
+lista_de_restaurante = ["Restaurante de Comida Chinesa","Restaurante de Comida Vegana","Restaurante de Bolos e Doces"]
+
+for restaurante in lista_de_restaurante:
+    analisador_de_sentimentos(restaurante=restaurante)
