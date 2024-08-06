@@ -76,5 +76,66 @@ def analisar_transacoes(transacoes):
     except Exception as e:
         print(f"Ocorreu um erro inesperado: {e}")
 
-transacoes_clientes = carrega("transacoes.csv")
-transacoes_analisadas = analisar_transacoes(transacoes_clientes)
+def gerar_parecer(transacao):
+    prompt_do_sistema = f"""
+    Para a seguinte transação, forneça um parecer, apenas se o status dela for de "Possível Fraude". Indique no parecer uma justificativa para que você identifique uma fraude.
+    Transação: {transacao}
+
+    ## Formato de Resposta
+    "id": "id",
+    "tipo": "crédito ou débito",
+    "estabelecimento": "nome do estabelecimento",
+    "horario": "horário da transação",
+    "valor": "R$XX,XX",
+    "nome_produto": "nome do produto",
+    "localizacao": "cidade - estado (País)"
+    "status": "",
+    "parecer" : "Colocar Não Aplicável se o status for Aprovado"
+    """
+    print('2 - Gerando parecer de transação')
+    try:
+        mensagem = cliente.messages.create(
+            model=modelo,
+            max_tokens=4000,
+            temperature=0,
+            # system=prompt_do_sistema,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt_do_sistema
+                        }
+                    ]
+                }
+            ]
+        )
+        resposta = mensagem.content[0].text
+        print('2 - Finalizando geração de parecer da transação')
+        return resposta
+    except anthropic.APIConnectionError as e:
+        print("O servidor não pode ser acessado! Erro:", e.__cause__)
+    except anthropic.RateLimitError as e:
+        print("Um status code 429 foi recebido! Limite de acesso atingido.")
+    except anthropic.APIStatusError as e:
+        print(f"Um erro {e.status_code} foi recebido. Mais informações: {e.response}")
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}")
+
+transacoes = carrega("transacoes.csv")
+transacoes_analisadas = analisar_transacoes(transacoes)
+
+for transacao in transacoes_analisadas["transacoes"]:
+    if transacao["status"] == "Possível Fraude":
+        parecer = gerar_parecer(transacao)
+        print(parecer)
+
+    # for uma_transacao in transacoes_analisadas["transacoes"]: 
+    # if uma_transacao["status"] == "Possível Fraude": 
+    #     um_parecer = gerar_parecer(uma_transacao)
+    #     recomendacao = gerar_recomendacoes(um_parecer)
+    #     id_transacao = uma_transacao["id"]
+    #     produto_transacao = uma_transacao["nome_produto"]
+    #     status_transacao = uma_transacao["status"]
+    #     salva(f"transacao-{id_transacao}-{produto_transacao}-{status_transacao}.txt",recomendacao)
